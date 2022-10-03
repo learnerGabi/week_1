@@ -1,16 +1,28 @@
-# Setup a Docker container
-FROM python:latest
+# as of 9/29/22 3.10.7 was the lastest
+# why: different version may not work 
+FROM python:3.10.7
+USER root
 
-# Configure the system
-RUN apt-get update
-RUN apt-get install wget 
+# Set your working directory
+WORKDIR /var/www/
+# Create a dir in the home dir
+RUN mkdir -p /var/www/new_dir_jupyter_user
 
-# Do something with the system
-# 1. Use wget to download the file and rename it
-RUN wget https://github.com/mschermann/forensic_accounting/blob/master/fb_sub.csv -O company.csv
-# 2. Understand how to get access to the container - get interactive access
+# install first
+RUN pip3 install jupyter
+ENV JUPYTER_USER our_user
+RUN wget https://github.com/mschermann/forensic_accounting/blob/master/Introduction.ipynb -O /var/www/new_dir_jupyter_user/user_notebook.ipynb
 
-# 3. Use regular expressions to find the name of the company 
-#    and write it into a file called company.txt.
-RUN grep -o -m1 "\(\\w*\) INC" company.csv | head -1 > company_name.txt
+RUN useradd -ms /bin/bash ${JUPYTER_USER}
 
+EXPOSE 8888
+
+USER ${JUPYTER_USER}
+ 
+
+
+CMD jupyter notebook --ip=0.0.0.0 --port 8888
+
+
+
+# # 8:40
